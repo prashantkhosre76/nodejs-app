@@ -1,0 +1,32 @@
+pipeline {
+  agent any
+
+  environment {
+    APP_NAME = 'nodejs-app'
+    IMAGE_STREAM = "image-registry.openshift-image-registry.svc:5000/jenkins-demo/${APP_NAME}:latest"
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        git 'https://github.com/prashantkhosre76/nodejs-app.git'
+      }
+    }
+
+    stage('Build Image') {
+      steps {
+        script {
+          sh "oc start-build ${APP_NAME} --from-dir=. --follow"
+        }
+      }
+    }
+
+    stage('Deploy') {
+      steps {
+        script {
+          sh "oc apply -f deployment.yaml"
+        }
+      }
+    }
+  }
+}
